@@ -47,7 +47,6 @@ class Controller {
 		let x = window.innerWidth/2-size/2;
 		let y = window.innerHeight/2-size/2;
 		this.storage.sqrs[this.storage.sqrs.length] = new Square(x,y,size,size,"red", this.storage.sqrs.length);
-		console.log(this.storage.sqrs[this.storage.sqrs.length-1]);
 		this.storage.sqrs[this.storage.sqrs.length-1].div.addEventListener("click", this.onClickedSqr);
 	}
 	createHighscoreDiv(left, top) {
