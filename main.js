@@ -43,7 +43,7 @@ class Controller {
 		this.createScoreDiv(0,0);
 	}
 	createSquare() {
-		let size = 0.05*window.innerWidth;
+		let size = 0.05*(window.innerWidth > window.innerHeight ? window.innerWidth : window.innerHeight);
 		let x = window.innerWidth/2-size/2;
 		let y = window.innerHeight/2-size/2;
 		this.storage.sqrs[this.storage.sqrs.length] = new Square(x,y,size,size,"red", this.storage.sqrs.length);
