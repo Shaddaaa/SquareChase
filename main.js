@@ -8,10 +8,10 @@ class Square {
 		this.width = w;
 		this.height = h;
 		this.div.style.position = "absolute"
-		this.div.style.left = this.x;
-		this.div.style.top = this.y;
-		this.div.style.width = w;
-		this.div.style.height = h;
+		this.div.style.left = this.x + "px";
+		this.div.style.top = this.y + "px";
+		this.div.style.width = w + "px";
+		this.div.style.height = h + "px";
 		this.div.style.background = c;
 		this.div.style.border = "3px solid blue";
 		this.div.style.display = "flex";
@@ -36,7 +36,7 @@ class Controller {
 	constructor() {
 		this.storage = new Model();
 		if(localStorage.getItem("highscore")) {
-			this.storage.highscore = JSON.parse(localStorage.getItem("highscore"));		
+			//this.storage.highscore = localStorage.getItem("highscore");	
 		}
 		this.createSquare();
 		this.createHighscoreDiv(0,20);
@@ -47,6 +47,7 @@ class Controller {
 		let x = window.innerWidth/2-size/2;
 		let y = window.innerHeight/2-size/2;
 		this.storage.sqrs[this.storage.sqrs.length] = new Square(x,y,size,size,"red", this.storage.sqrs.length);
+		console.log(this.storage.sqrs[this.storage.sqrs.length-1]);
 		this.storage.sqrs[this.storage.sqrs.length-1].div.addEventListener("click", this.onClickedSqr);
 	}
 	createHighscoreDiv(left, top) {
@@ -117,7 +118,7 @@ class Controller {
 	lost() {
 		if (this.storage.score > this.storage.highscore) {
 			this.storage.highscore = this.storage.score;
-			localStorage.setItem("highscore", this.storage.highscore);
+			//localStorage.setItem("highscore", this.storage.highscore);
 		}
 		this.storage.score = 0;
 		this.addScore(0);
