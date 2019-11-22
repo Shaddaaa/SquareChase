@@ -36,7 +36,7 @@ class Controller {
 	constructor() {
 		this.storage = new Model();
 		if(localStorage.getItem("highscore")) {
-			//this.storage.highscore = localStorage.getItem("highscore");	
+			this.storage.highscore = localStorage.getItem("highscore");	
 		}
 		this.createSquare();
 		this.createHighscoreDiv(0,20);
@@ -53,16 +53,16 @@ class Controller {
 	createHighscoreDiv(left, top) {
 		this.storage.highscoreDiv = document.createElement("div");
 		this.storage.highscoreDiv.style.position = "absolute";
-		this.storage.highscoreDiv.style.left = left;
-		this.storage.highscoreDiv.style.top = top;
+		this.storage.highscoreDiv.style.left = left + "px";
+		this.storage.highscoreDiv.style.top = top + "px";
 		this.storage.highscoreDiv.innerHTML = "Highscore: " + this.storage.highscore;
 		document.body.appendChild(this.storage.highscoreDiv);
 	}
 	createScoreDiv(left, top) {
 		this.storage.scoreDiv = document.createElement("div");
 		this.storage.scoreDiv.style.position = "absolute";
-		this.storage.scoreDiv.style.left = left;
-		this.storage.scoreDiv.style.top = top;
+		this.storage.scoreDiv.style.left = left + "px";
+		this.storage.scoreDiv.style.top = top + "px";
 		this.storage.scoreDiv.innerHTML = "Score: " + this.storage.score; 
 		document.body.appendChild(this.storage.scoreDiv);
 	}
@@ -118,7 +118,7 @@ class Controller {
 	lost() {
 		if (this.storage.score > this.storage.highscore) {
 			this.storage.highscore = this.storage.score;
-			//localStorage.setItem("highscore", this.storage.highscore);
+			localStorage.setItem("highscore", this.storage.highscore);
 		}
 		this.storage.score = 0;
 		this.addScore(0);
