@@ -1,3 +1,4 @@
+//stores all relevant data for a square
 class Square {
 	constructor(x,y,w,h,c,id) {
 		this.id = id; //unique id
@@ -7,6 +8,7 @@ class Square {
 		this.y = y;
 		this.width = w;
 		this.height = h;
+		this.difficulty = 0;
 		this.div.style.position = "absolute"
 		this.div.style.left = this.x + "px";
 		this.div.style.top = this.y + "px";
@@ -24,6 +26,7 @@ class Square {
 	}
 }
 
+//stores all global game data
 class Model {
 	constructor() {
 		this.score = 0;
@@ -32,6 +35,7 @@ class Model {
 	}
 }
 
+//heart of the game
 class Controller {
 	constructor() {
 		this.storage = new Model();
@@ -41,13 +45,14 @@ class Controller {
 		this.createSquare();
 		this.createHighscoreDiv(0,20);
 		this.createScoreDiv(0,0);
+		this.createSmallerButton(0,40);
 	}
 	createSquare() {
 		let size = 0.05*(window.innerWidth > window.innerHeight ? window.innerWidth : window.innerHeight);
 		let x = window.innerWidth/2-size/2;
 		let y = window.innerHeight/2-size/2;
 		this.storage.sqrs[this.storage.sqrs.length] = new Square(x,y,size,size,"red", this.storage.sqrs.length);
-		this.storage.sqrs[this.storage.sqrs.length-1].div.addEventListener("click", this.onClickedSqr);
+		this.storage.sqrs[this.storage.sqrs.length-1].div.addEventListener("click", function(e) {game.onClickedSqr(e);});
 	}
 	createHighscoreDiv(left, top) {
 		this.storage.highscoreDiv = document.createElement("div");
@@ -65,6 +70,16 @@ class Controller {
 		this.storage.scoreDiv.innerHTML = "Score: " + this.storage.score; 
 		document.body.appendChild(this.storage.scoreDiv);
 	}
+	createSmallerButton(left, top) {
+		let smallerButton = document.createElement("button");
+		smallerButton.style.position = "absolute";
+		smallerButton.style.left = left + "px";
+		smallerButton.style.top = top + "px";
+		smallerButton.innerHTML = "Smaller + Reset difficulty";
+		smallerButton.addEventListener("click", function() { game.smaller(); });
+		document.body.appendChild(smallerButton);
+	}
+	//gets called via a setinterval every 5 ms
 	tick() {
 		let now = new Date().getTime();
 		for (let i = 0; i < this.storage.sqrs.length;i++) {
@@ -76,7 +91,8 @@ class Controller {
 	}
 	timeLeft(sqr, now = new Date().getTime()) {
 		let diff = sqr.lastClick - now;
-		let timePer = Math.floor(100 + 900 * Math.pow(0.99, this.storage.score));
+		//timeleft based on score gained since last difficulty reset. Minimum 100, starting at 1000
+		let timePer = Math.floor(100 + 900 * Math.pow(0.99, sqr.difficulty));
 		return  diff + timePer;
 	}
 	moveRandom(sqr) {
@@ -84,6 +100,7 @@ class Controller {
 		sqr.y += getRandom(-50,50);
 		this.updatePosition(sqr);
 	}
+	//update square position and keep it in bounds
 	updatePosition(sqr) {
 		if(sqr.x > window.innerWidth - sqr.width) sqr.x = window.innerWidth - sqr.width;
 		if(sqr.x < sqr.width) sqr.x = sqr.width;
@@ -92,19 +109,24 @@ class Controller {
 		sqr.div.style.left = sqr.x + "px";
 		sqr.div.style.top = sqr.y + "px";
 	}
+	updateSize(sqr) {
+		sqr.div.style.width = sqr.width + "px";
+		sqr.div.style.height = sqr.height + "px";
+	}
 	onClickedSqr(e) {
-		let sqr = game.getSqrById(e.target.id);
+		let sqr = this.getSqrById(e.target.id);
 		if (sqr==null) {
 			console.log("Square clicked... but not?");
 			return;
 		}
 		//handle click
 		let now = new Date().getTime();
-		if (game.timeLeft(sqr,now) < 0) {
-			game.lost();
+		if (this.timeLeft(sqr,now) < 0) {
+			this.lost();
 		} else {
-			game.addScore(1);
-			game.moveRandom(sqr);
+			sqr.difficulty++;
+			this.addScore(1);
+			this.moveRandom(sqr);
 		}	
 		sqr.lastClick = now;
 	}
@@ -115,25 +137,45 @@ class Controller {
 		return null;
 	}
 	lost() {
+		//reset squares
+		this.deleteSquares();
+		this.createSquare();
+		//check for new Highscore
 		if (this.storage.score > this.storage.highscore) {
 			this.storage.highscore = this.storage.score;
 			localStorage.setItem("highscore", this.storage.highscore);
 		}
+		//reset scores
 		this.storage.score = 0;
 		this.addScore(0);
 		this.updateHighscore();
 	}
+	deleteSquares() {
+		for (let i = 0; i < this.storage.sqrs.length;i++) {
+			document.getElementById(this.storage.sqrs[i].id).remove();
+		}
+		this.storage.sqrs = [];
+	}
 	updateHighscore() {
 		this.storage.highscoreDiv.innerHTML = "Highscore: " + this.storage.highscore;
 	}
+	//also updates the view
 	addScore(i) {
 		this.storage.score += i;
 		this.storage.scoreDiv.innerHTML = "Score: " + this.storage.score;
 	}
+	smaller() {
+		for (let i = 0; i < this.storage.sqrs.length; i++) {
+			this.storage.sqrs[i].width *= 0.9;
+			this.storage.sqrs[i].height *= 0.9;
+			this.storage.sqrs[i].difficulty = 0;
+			this.updateSize(this.storage.sqrs[i]);
+		}
+	}
 	onkeydown(e) {
-		switch(String.fromCharCode(e.which)) {
+		switch(e.key) {
 			case "s":
-				console.log("smaller");
+				game.smaller();
 				break;
 			default:
 				break;
